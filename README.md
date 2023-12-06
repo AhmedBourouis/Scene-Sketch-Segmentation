@@ -23,7 +23,7 @@ Finally, we conduct a user study that allows us to identify further improvements
 pip install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f https://download.pytorch.org/whl/torch_stable.html
 
 ```
-- Download the checkpoint `sketch_seg_best_miou.pth` and save it in `checkpoint` folder. A use case can be found in `demo.py`.
+- Download checkpoint `sketch_seg_best_miou.pth` from [here](https://drive.google.com/drive/folders/1TdA5B-cZWJOZgZzVzHhAAIEoM9NOBFvM?usp=sharing) and save it in `checkpoint` folder. A use case can be found in `demo.py`.
 ```
 python demo.py --config-file vpt/configs/prompt/cub.yaml checkpoint_path checkpoint/sketch_seg_best_miou.pth sketch_path demo/sketch_1.png threshold 0.5
 ```
