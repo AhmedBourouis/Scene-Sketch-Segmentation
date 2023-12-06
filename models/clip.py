@@ -155,7 +155,7 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
 
     
     if not jit:
-        model = build_model(name, state_dict or model.state_dict(),cfg,zero_shot,LT,groupvit).to(device)
+        model = build_model(name, state_dict or model.state_dict(),cfg,zero_shot).to(device)
         # model = build_model(name, laion_state_dict,cfg,num_classes).to(device)
         if str(device) == "cpu":
             model.float()

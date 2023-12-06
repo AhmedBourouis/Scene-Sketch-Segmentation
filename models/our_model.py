@@ -270,8 +270,7 @@ class ResidualAttentionBlock(nn.Module):
             return [x.transpose(0, 1), x_ori.transpose(0, 1)]
         else:
             return self.attn(x, x, x, need_weights=False, attn_mask=self.attn_mask)[0]
-            # return self.attn(x, x, x, need_weights=False, attn_mask=attn_mask, attention_probs_forward_hook=None,
-            #              attention_probs_backwards_hook=None, attention_keys_forward_hook=None)[0]
+
     def forward(self, x, attn_mask: torch.Tensor = None, mode="train"):
         # dual paths for blocks deeper than "d"
         if isinstance(self.attn, Attention):
@@ -337,95 +336,14 @@ class Transformer(nn.Module):
                 return [x_l_ca, x_ori_l_ca]
           
 
-class VisionTransformer(nn.Module):
-    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int):
-        super().__init__()
-        self.input_resolution = input_resolution
-        self.output_dim = output_dim
-        self.conv1 = nn.Conv2d(in_channels=3, out_channels=width, kernel_size=patch_size, stride=patch_size, bias=False)
-
-        scale = width ** -0.5
-        self.class_embedding = nn.Parameter(scale * torch.randn(width))
-        self.positional_embedding = nn.Parameter(scale * torch.randn((input_resolution // patch_size) ** 2 + 1, width))
-        self.ln_pre = LayerNorm(width)
-
-        self.transformer = Transformer(width, layers, heads, need_weights=True)
-        self.attn = None
-        self.embed_dim = width
-        self.num_heads = heads
-
-        self.ln_post = LayerNorm(width)
-        self.proj = nn.Parameter(scale * torch.randn(width, output_dim))
-
-    @torch.no_grad()
-    def forward(self, x: torch.Tensor):
-        B = x.shape[0]
-        # reform the architecture during first inference
-        if self.attn == None:    
-            # apply architecture surgery on the last 6 blocks
-            for i in range(1, 7): # surgery 7, maskclip 2
-                self.attn = Attention(self.embed_dim, self.embed_dim, self.num_heads, True)
-                self.attn.qkv.weight.data = self.transformer.resblocks[-i].attn.in_proj_weight.clone()
-                self.attn.qkv.bias.data = self.transformer.resblocks[-i].attn.in_proj_bias.clone()
-                self.attn.proj.weight.data = self.transformer.resblocks[-i].attn.out_proj.weight.clone()
-                self.attn.proj.bias.data = self.transformer.resblocks[-i].attn.out_proj.bias.clone()
-                self.transformer.resblocks[-i].attn = self.attn
-
-        x = self.conv1(x)  # shape = [*, width, grid, grid]
-        x = x.reshape(x.shape[0], x.shape[1], -1)  # shape = [*, width, grid ** 2]
-        x = x.permute(0, 2, 1)  # shape = [*, grid ** 2, width]  ,, torch.Size([B, 196, 768])       
-        x = torch.cat([self.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device), x], dim=1)  # shape = [*, grid ** 2 + 1, width]                
-        side = int((self.positional_embedding.shape[0] - 1) ** 0.5)
-        new_side = int((x.shape[1] - 1) ** 0.5)
-
-        # update the position embedding during inference for varied input size
-        if side != new_side:
-            new_pos = self.positional_embedding[1:, :].reshape(-1, side, side, x.shape[-1]).permute(0, 3, 1, 2)
-            new_pos = torch.nn.functional.interpolate(new_pos, (new_side, new_side), mode='bilinear')
-            new_pos = new_pos.reshape(-1, x.shape[-1], new_side * new_side).transpose(1, 2)
-            self.positional_embedding.data = torch.cat([self.positional_embedding[:1, :], new_pos[0]], 0)
-
-        pos = self.positional_embedding.to(x.dtype)
-        x = x + pos # add positional embedding torch.Size([B, 197, 768])
-        x = self.ln_pre(x) # layer norm
-
-        x = x.permute(1, 0, 2)  # NLD -> LND
-        x, x_ori = self.transformer(x)
-        x[0, :, :] = x_ori[0, :, :] # clip_surgery
-        x = x.permute(1, 0, 2)  # LND -> NLD
-
-        x = self.ln_post(x) # layer norm
-        x = x @ self.proj
-
-        return x
-
-# class Scale_Embedding(nn.Module):
-#     def __init__(self):
-#         super().__init__()
-#         self.seq = nn.Sequential(
-#             nn.Conv2d(3, 64, 7, 2, 3, bias=False),
-#             nn.ReLU(inplace=True),
-#             nn.Conv2d(64, 128, 3, 2, 1, bias=False),
-#             nn.ReLU(inplace=True),
-#             nn.Conv2d(128, 256, 3, 2, 1, bias=False),
-#             nn.ReLU(inplace=True),
-#             nn.Conv2d(256, 768, 3, 2, 1, bias=False),
-#         )
-
-#     def forward(self, x):
-#         return self.seq(x)
-
 class PromptedVisionTransformer(nn.Module):
-    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,prompt_config:dict,zero_shot:bool,groupvit:bool=False):
+    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,prompt_config:dict,zero_shot:bool):
         super().__init__()
         self.zero_shot = zero_shot
         self.patch_size = patch_size
         self.input_resolution = input_resolution
         self.output_dim = output_dim
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=width, kernel_size=patch_size, stride=patch_size, bias=False)
-
-        # self.LT = nn.Conv2d(3, width, patch_size, patch_size)
-        # self.Lscale = Scale_Embedding()
         
         scale = width ** -0.5
         self.class_embedding = nn.Parameter(scale * torch.randn(width))
@@ -433,7 +351,6 @@ class PromptedVisionTransformer(nn.Module):
         self.ln_pre = LayerNorm(width)
 
         self.transformer = Transformer(width, layers, heads, need_weights=True)
-        # self.transformer = Transformer(width, 6, heads, need_weights=True)
         self.attn = None
         self.embed_dim = width
         self.num_heads = heads
@@ -446,9 +363,6 @@ class PromptedVisionTransformer(nn.Module):
         
         num_tokens = self.prompt_config.NUM_TOKENS
         self.num_tokens = num_tokens  # number of prompted tokens
-        if groupvit: 
-            num_tokens = 20
-            self.num_tokens = 20
 
         # if project the prompt embeddings
         if self.prompt_config.PROJECT > -1:
@@ -521,7 +435,7 @@ class PromptedVisionTransformer(nn.Module):
         
         pos = self.positional_embedding.to(x.dtype)
         x = x + pos # add positional embedding torch.Size([B, 197, 768])
-        # ADD VISUAL PROMPTS (probably here) 
+        # ADD VISUAL PROMPTS HERE
         if self.num_tokens > 0:
             x = torch.cat((
                     x[:, :1, :],
@@ -533,7 +447,6 @@ class PromptedVisionTransformer(nn.Module):
 
         x = x.permute(1, 0, 2)  # NLD -> LND
         x, x_ori = self.transformer(x,layers,text_bool=False, text_features=text_features,mode = mode)
-        # breakpoint()
         x[0, :, :] = x_ori[0, :, :] # clip_surgery
         x = x.permute(1, 0, 2)  # LND -> NLD
 
@@ -542,7 +455,7 @@ class PromptedVisionTransformer(nn.Module):
         return x        
 
 
-class CLIPSurgery(nn.Module):
+class ModifiedCLIPSurgery(nn.Module):
     def __init__(self,
                  embed_dim: int,
                  # vision
@@ -558,7 +471,6 @@ class CLIPSurgery(nn.Module):
                  transformer_layers: int,
                  cfg:dict,
                  zero_shot:bool,
-                 groupvit:bool=False
                  ):
         super().__init__()
         if "prompt" in cfg.MODEL.TRANSFER_TYPE:
@@ -589,8 +501,6 @@ class CLIPSurgery(nn.Module):
                 output_dim=embed_dim,
                 prompt_config=self.prompt_config,
                 zero_shot=zero_shot,
-                groupvit=groupvit
-                # groupvit=cfg.MODEL.GROUPVIT
                 )
 
         self.transformer = Transformer(
@@ -626,9 +536,6 @@ class CLIPSurgery(nn.Module):
                 for name, param in resnet_block.named_parameters():
                     if name.endswith("bn3.weight"):
                         nn.init.zeros_(param)
-        # for name, param in self.named_parameters():
-        #     if param.requires_grad:
-        #         print(name)
         proj_std = (self.transformer.width ** -0.5) * ((2 * self.transformer.layers) ** -0.5)
         attn_std = self.transformer.width ** -0.5
         fc_std = (2 * self.transformer.width) ** -0.5
@@ -652,7 +559,6 @@ class CLIPSurgery(nn.Module):
     @property
     def dtype(self):
         return self.visual.conv1.weight.dtype
-        # return self.visual.LT.weight.dtype
     
     def encode_image(self, image,layers:int=12,text_features=None,mode="test"):
         return self.visual(image.type(self.dtype),layers=layers,text_features=text_features,mode=mode)
@@ -667,7 +573,6 @@ class CLIPSurgery(nn.Module):
         x = self.ln_final(x).type(self.dtype)
 
         # x.shape = [batch_size, n_ctx, transformer.width]
-        # take features from the eot embedding (eot_token is the highest number in each sequence)
         x = x[torch.arange(x.shape[0]), text.argmax(dim=-1)] @ self.text_projection
 
         return x

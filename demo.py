@@ -22,22 +22,19 @@ def main(args):
     Ours, preprocess = models.load("CS-ViT-B/16", device=device,cfg=cfg,zero_shot=False)
     state_dict = torch.load(cfg.checkpoint_path)
     
-    # Trained on 2 gpus so we need to remove the prefix "module."
-    # Create a new state dictionary where the key is the same as the old one but without the prefix "module."
+    # Trained on 2 gpus so we need to remove the prefix "module." to test it on a single GPU
     new_state_dict = OrderedDict()
-    # Modify old state dict keys and copy it to the new state dict
     for k, v in state_dict.items():
         name = k[7:] # remove `module.`
         new_state_dict[name] = v 
     Ours.load_state_dict(new_state_dict)     
     Ours.eval()     
     
-    colors = plt.get_cmap("tab10").colors
     
     sketch_img_path = cfg.sketch_path
-    
     classes = ['tree','bench','grass'] # set the condidate classes here
     
+    colors = plt.get_cmap("tab10").colors    
     classes_colors = colors[:len(classes)]
 
     pil_img = Image.open(sketch_img_path).convert('RGB')

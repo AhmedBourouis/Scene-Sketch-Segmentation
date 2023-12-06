@@ -1,6 +1,6 @@
 from torch import nn
 from .clip_model import CLIP
-from .clip_surgery_model import CLIPSurgery
+from .our_model import ModifiedCLIPSurgery
 
 
 def convert_weights(model: nn.Module):
@@ -27,7 +27,7 @@ def convert_weights(model: nn.Module):
     model.apply(_convert_weights_to_fp16)
 
 
-def build_model(name: str, state_dict: dict,cfg: dict,zero_shot: bool,LT:bool=False,groupvit:bool=False):
+def build_model(name: str, state_dict: dict,cfg: dict,zero_shot: bool):
     vit = "visual.proj" in state_dict
 
     if vit:
@@ -54,10 +54,10 @@ def build_model(name: str, state_dict: dict,cfg: dict,zero_shot: bool,LT:bool=Fa
 
     if 'CS-' in name:
         print('CS model loaded')
-        model = CLIPSurgery(
+        model = ModifiedCLIPSurgery(
             embed_dim,
             image_resolution, vision_layers, vision_width, vision_patch_size,
-            context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,cfg,zero_shot,groupvit
+            context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,cfg,zero_shot
         )
     else:
         print('CLIP model loaded')
@@ -71,23 +71,15 @@ def build_model(name: str, state_dict: dict,cfg: dict,zero_shot: bool,LT:bool=Fa
         if key in state_dict:
             del state_dict[key]
             
-    # model_dict = model.state_dict()
-    # state_dict = {k: v for k, v in state_dict.items() if k in model_dict}
-    # model_dict.update(state_dict)
-    #convert_weights(model)
     model.load_state_dict(state_dict,strict=False)
         
     if not cfg.ft_all:    
         train_params_list= cfg.MODEL.PROMPT.TRAINABLE_PARM.split(',')
-        # return model.eval()    
         for name, param in model.named_parameters():
             param.requires_grad = any(str(t_param) in name for t_param in train_params_list)
     
     for name, param in model.named_parameters():
         if "visual" not in name:
             param.requires_grad = False
-    # for name, param in model.named_parameters():
-    #     if param.requires_grad:
-    #         print(name)
-    # breakpoint()
+
     return model
