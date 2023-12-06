@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Open Vocabulary Scene Sketch Semantic Understanding
 Code release for "Open Vocabulary Scene Sketch Semantic Understanding" (arXiv 2023)
 
