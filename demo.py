@@ -32,11 +32,10 @@ def main(args):
     
     
     sketch_img_path = cfg.sketch_path
-    classes = ['tree'] # set the condidate classes here
+    classes = ['giraffe','zebra','grass','cloud'] # set the condidate classes here
     
     colors = plt.get_cmap("tab10").colors    
-    # classes_colors = colors[:len(classes)]
-    classes_colors = colors[1:2]
+    classes_colors = colors[:len(classes)]
 
     pil_img = Image.open(sketch_img_path).convert('RGB')
     binary_sketch = np.array(pil_img)

@@ -100,7 +100,6 @@ def display_segmented_sketch(pixel_similarity_array,binary_sketch,classes,classe
     plt.imshow(rgb_image)
     plt.axis('off')
     plt.tight_layout()
-    # plt.show()
     
     if save_path:
         save_dir = "/".join(save_path.split("/")[:-1])
