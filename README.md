@@ -21,6 +21,7 @@ We present the first language-supervised scene sketch segmentation method. Our a
 <div align="center">
 <img src="figs/inference.gif" width="85%">
 
+</div>
 
 ## Isolate individual categories
 
