@@ -60,7 +60,7 @@ def get_similarity_map(sm, shape):
     return sm.squeeze(0)
 
 
-def display_segmented_sketch(pixel_similarity_array,binary_sketch,classes,classes_colors):
+def display_segmented_sketch(pixel_similarity_array,binary_sketch,classes,classes_colors,save_path=None):
     # Find the class index with the highest similarity for each pixel
     class_indices = np.argmax(pixel_similarity_array, axis=0)
     # Create an HSV image placeholder
@@ -100,4 +100,13 @@ def display_segmented_sketch(pixel_similarity_array,binary_sketch,classes,classe
     plt.imshow(rgb_image)
     plt.axis('off')
     plt.tight_layout()
-    plt.show()
+    # plt.show()
+    
+    if save_path:
+        save_dir = "/".join(save_path.split("/")[:-1])
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        plt.savefig(save_path, bbox_inches='tight', pad_inches=0)
+        
+    else:
+        plt.show()

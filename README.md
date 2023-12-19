@@ -24,7 +24,9 @@ We present the first language-supervised scene sketch segmentation method. Our a
 </div>
 
 ## Isolate individual categories
+If we want to isolate just a few categories in the sketch, we only retain pixels with category-sketch similarity scores above a pre-set threshold value. Below we visualize this process for different threshold values. 
 
+<img src="figs/thresholding.png" width="800"/>
 
 # Usage
 
@@ -40,7 +42,7 @@ pip install torch==1.9.1+cu111 torchvision==0.10.1+cu111 torchaudio==0.9.1 -f ht
 - A use case can be found in `demo.py`. From just a sketch image and condidate categories, we can generate scene sketch segmentation maps.
  
 ```
-python demo.py --config-file vpt/configs/prompt/cub.yaml checkpoint_path checkpoint/sketch_seg_best_miou.pth sketch_path demo/sketch_1.png threshold 0.5
+python demo.py --config-file vpt/configs/prompt/cub.yaml checkpoint_path checkpoint/sketch_seg_best_miou.pth sketch_path demo/sketch_1.png output_path demo/results/output.png threshold 0.6
 ```
 ### Hyper-parameters
 - `config-file`:
@@ -49,8 +51,10 @@ python demo.py --config-file vpt/configs/prompt/cub.yaml checkpoint_path checkpo
   path for the model checkpoint.
 - `sketch_path`:
   sketch image example path.
+- `output_path`:
+  path to save the output sketch.
 - `threshold`:
-  the threshold value for class-pixel similarity scores to retain during inference.
+  the threshold value for class-pixel similarity scores to retain.
  
 
 ## Training code (to be released soon)

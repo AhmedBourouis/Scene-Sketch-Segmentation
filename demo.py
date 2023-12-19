@@ -32,10 +32,11 @@ def main(args):
     
     
     sketch_img_path = cfg.sketch_path
-    classes = ['tree','bench','grass'] # set the condidate classes here
+    classes = ['tree'] # set the condidate classes here
     
     colors = plt.get_cmap("tab10").colors    
-    classes_colors = colors[:len(classes)]
+    # classes_colors = colors[:len(classes)]
+    classes_colors = colors[1:2]
 
     pil_img = Image.open(sketch_img_path).convert('RGB')
     binary_sketch = np.array(pil_img)
@@ -57,7 +58,7 @@ def main(args):
     pixel_similarity[pixel_similarity<cfg.threshold] = 0
     pixel_similarity_array = pixel_similarity.cpu().numpy().transpose(2,0,1)
     
-    display_segmented_sketch(pixel_similarity_array,binary_sketch,classes,classes_colors)
+    display_segmented_sketch(pixel_similarity_array,binary_sketch,classes,classes_colors,save_path=cfg.output_path)
 
         
 if __name__ == '__main__':
