@@ -63,9 +63,12 @@ python demo.py --config-file vpt/configs/prompt/cub.yaml checkpoint_path checkpo
 # Citation
 If you find this paper useful in your research, please consider citing:
 ```
-@article{bourouis2023SSU,
-  author   = {Bourouis, Ahmed and Fan, Judith Ellen and Gryaditskaya, Yulia},
-  title    = {Open Vocabulary Scene Sketch Semantic Understanding},
-  year     = {2023},
+@misc{bourouis2023open,
+title={Open Vocabulary Semantic Scene Sketch Understanding}, 
+author={Ahmed Bourouis and Judith Ellen Fan and Yulia Gryaditskaya},
+year={2023},
+eprint={2312.12463},
+archivePrefix={arXiv},
+primaryClass={cs.CV}
 }
 ```
