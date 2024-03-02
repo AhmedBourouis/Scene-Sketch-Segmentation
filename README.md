@@ -10,7 +10,8 @@ We present the first language-supervised scene sketch segmentation method. Our a
 <img src="figs/teaser.png" width="800"/>
 
 # News
-- **2023.12.05**: demo code is released.
+- **26.02.2024**: Paper accepted at CVPR'24 :tada: 
+- **05.12.2023**: Demo code is released.
 
 
 # Inference
