@@ -12,7 +12,7 @@ from utils import setup, get_similarity_map,zero_clapping,get_train_classes,\
                 tensor_to_binary_img, sketch_text_pairs, get_threshold,triplet_loss_func_L1
 import wandb
 from models import clip
-
+import os
 
 def main(args):
     # set up cfg and args
@@ -96,7 +96,12 @@ def main(args):
             if cfg.WANDB:
                 wandb.log({"Train loss": loss.item()})
                 wandb.log({"Threshold value":threshold_value})
-
+                
+                
+        if epoch % cfg.save_every == 0:
+            os.makedirs(f"checkpoint/{cfg.MODEL.PROMPT.LOG}", exist_ok=True)
+            torch.save(model.state_dict(), f"checkpoint/{cfg.MODEL.PROMPT.LOG}/model_{epoch}.pth")
+        
 if __name__ == '__main__':
     args = default_argument_parser().parse_args()    
     main(args)
