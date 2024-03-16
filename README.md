@@ -7,7 +7,9 @@ We present the first language-supervised scene sketch segmentation method. Our a
 [*Judith Ellen Fan*](https://profiles.stanford.edu/judith-fan),
 [*Yulia Gryaditskaya*](https://yulia.gryaditskaya.com/).
 
+<div align="center">
 <img src="figs/teaser.png" width="800"/>
+</div>
 
 # News
 - **26.02.2024**: Train code released
@@ -27,8 +29,9 @@ We present the first language-supervised scene sketch segmentation method. Our a
 
 ## Isolate individual categories
 If we want to isolate just a few categories in the sketch, we only retain pixels with category-sketch similarity scores above a pre-set threshold value. Below we visualize this process for different threshold values. 
-
+<div align="center">
 <img src="figs/thresholding.png" width="800"/>
+</div>
 
 # Usage
 
