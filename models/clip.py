@@ -106,7 +106,7 @@ def available_models() -> List[str]:
     return list(_MODELS.keys())
 
 
-def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu", jit: bool = False, download_root: str = None,cfg: CfgNode=None, zero_shot: bool = True,LT: bool = False,groupvit: bool = False):
+def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu", jit: bool = False, download_root: str = None,cfg: CfgNode=None, train_bool: bool = True,LT: bool = False,groupvit: bool = False):
     """Load a CLIP model
 
     Parameters
@@ -155,7 +155,7 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
 
     
     if not jit:
-        model = build_model(name, state_dict or model.state_dict(),cfg,zero_shot).to(device)
+        model = build_model(name, state_dict or model.state_dict(),cfg,train_bool).to(device)
         # model = build_model(name, laion_state_dict,cfg,num_classes).to(device)
         if str(device) == "cpu":
             model.float()
@@ -211,10 +211,6 @@ def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_a
 
         model.float()
 
-    # print("THIS SHOULD HAVE A HEAD #########################################")
-    # for name, param in model.named_parameters():
-    #     print(name)
-    
     return model, _transform(model.input_resolution.item())
 
 
@@ -286,9 +282,7 @@ def encode_text_with_prompt_ensemble(model, texts, device, prompt_templates=None
 
 
 def get_similarity_map(sm, shape):
-    
-    # sm: torch.Size([1, 196, 1]) 
-    
+        
     # min-max norm
     sm = (sm - sm.min(1, keepdim=True)[0]) / (sm.max(1, keepdim=True)[0] - sm.min(1, keepdim=True)[0]) # torch.Size([1, 196, 1])
 
@@ -304,9 +298,6 @@ def get_similarity_map(sm, shape):
 
 
 def clip_feature_surgery(image_features, text_features, redundant_feats=None, t=2):
-    # image_features: torch.Size([1, 197, 512])
-    # text_features: torch.Size([59, 512])
-    # redundant_feats: torch.Size([1, 512]) 
     
     if redundant_feats != None:
         similarity = image_features @ (text_features - redundant_feats).t() # torch.Size([1,197, 1])

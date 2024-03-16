@@ -1,3 +1,9 @@
+""" 
+
+This code is borrowed from https://github.com/buptLinfy/ZSE-SBIR
+
+"""
+
 import math
 import copy
 

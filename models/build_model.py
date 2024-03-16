@@ -27,7 +27,7 @@ def convert_weights(model: nn.Module):
     model.apply(_convert_weights_to_fp16)
 
 
-def build_model(name: str, state_dict: dict,cfg: dict,zero_shot: bool):
+def build_model(name: str, state_dict: dict,cfg: dict,train_bool: bool):
     vit = "visual.proj" in state_dict
 
     if vit:
@@ -53,14 +53,12 @@ def build_model(name: str, state_dict: dict,cfg: dict,zero_shot: bool):
     transformer_layers = len(set(k.split(".")[2] for k in state_dict if k.startswith(f"transformer.resblocks")))
 
     if 'CS-' in name:
-        print('CS model loaded')
         model = ModifiedCLIPSurgery(
             embed_dim,
             image_resolution, vision_layers, vision_width, vision_patch_size,
-            context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,cfg,zero_shot
+            context_length, vocab_size, transformer_width, transformer_heads, transformer_layers,cfg,train_bool
         )
     else:
-        print('CLIP model loaded')
         model = CLIP(
             embed_dim,
             image_resolution, vision_layers, vision_width, vision_patch_size,

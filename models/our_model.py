@@ -307,10 +307,11 @@ class Transformer(nn.Module):
         self.layers = layers
         self.resblocks = nn.Sequential(*[ResidualAttentionBlock(width, heads, attn_mask) for i in range(layers)])
         self.ca = Cross_Attention(d_model=768)
-
-    def forward(self, x: torch.Tensor,layers:int,text_bool: bool,text_features: torch.Tensor,mode="train"):
+    
+    def forward(self, x: torch.Tensor,layers=12,text_bool=False,text_features=None,mode="train"):
         for idx,l in enumerate(self.resblocks):
-            x=l(x)
+            x=l(x) 
+            
             if idx+1 == layers:
                 if text_bool:
                     return x
@@ -337,9 +338,9 @@ class Transformer(nn.Module):
           
 
 class PromptedVisionTransformer(nn.Module):
-    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,prompt_config:dict,zero_shot:bool):
+    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, output_dim: int,prompt_config:dict,train_bool:bool):
         super().__init__()
-        self.zero_shot = zero_shot
+        self.train_bool = train_bool
         self.patch_size = patch_size
         self.input_resolution = input_resolution
         self.output_dim = output_dim
@@ -357,7 +358,7 @@ class PromptedVisionTransformer(nn.Module):
 
         self.ln_post = LayerNorm(width)
         self.proj = nn.Parameter(scale * torch.randn(width, output_dim))
-        ############################################################################
+
         self.prompt_config = prompt_config
         self.prompt_dropout = Dropout(self.prompt_config.DROPOUT)
         
@@ -395,7 +396,7 @@ class PromptedVisionTransformer(nn.Module):
         else:
             raise ValueError("Other initiation scheme is not supported")
 
-        if not self.zero_shot:
+        if not self.train_bool:
             if self.attn == None:
                 # apply architecture surgery on the last 6 blocks
                 for i in range(1, 7): # surgery 7, maskclip 2
@@ -446,13 +447,19 @@ class PromptedVisionTransformer(nn.Module):
         x = self.ln_pre(x) # layer norm
 
         x = x.permute(1, 0, 2)  # NLD -> LND
-        x, x_ori = self.transformer(x,layers,text_bool=False, text_features=text_features,mode = mode)
-        x[0, :, :] = x_ori[0, :, :] # clip_surgery
-        x = x.permute(1, 0, 2)  # LND -> NLD
+        if mode == "train":
+            x_multi = torch.zeros(len(layers),x.shape[1],x.shape[0],512).to(x.device)
+        elif mode == "test":
+            x_multi = torch.zeros(len(layers),text_features.shape[0],x.shape[0],512).to(x.device)
+        for d,layer in enumerate(layers):
+            x_l, x_ori_l = self.transformer(x,layers=layer,text_bool=False, text_features=text_features,mode = mode)
+            x_l[0, :, :] = x_ori_l[0, :, :] # clip_surgery
+            x_l = x_l.permute(1, 0, 2)  # LND -> NLD
 
-        x = self.ln_post(x) # layer norm
-        x = x @ self.proj
-        return x        
+            x_l = self.ln_post(x_l) # layer norm
+            x_l = x_l @ self.proj
+            x_multi[d] = x_l
+        return x_multi   
 
 
 class ModifiedCLIPSurgery(nn.Module):
@@ -470,7 +477,7 @@ class ModifiedCLIPSurgery(nn.Module):
                  transformer_heads: int,
                  transformer_layers: int,
                  cfg:dict,
-                 zero_shot:bool,
+                 train_bool:bool,
                  ):
         super().__init__()
         if "prompt" in cfg.MODEL.TRANSFER_TYPE:
@@ -500,7 +507,7 @@ class ModifiedCLIPSurgery(nn.Module):
                 heads=vision_heads,
                 output_dim=embed_dim,
                 prompt_config=self.prompt_config,
-                zero_shot=zero_shot,
+                train_bool=train_bool,
                 )
 
         self.transformer = Transformer(
@@ -577,10 +584,10 @@ class ModifiedCLIPSurgery(nn.Module):
 
         return x
 
-    def forward(self, image, text,layer_num=12,return_logits=False):
+    def forward(self, image, text,layer_num=12,return_logits=False,mode="train"):
 
         text_features = self.encode_text(text)
-        patch_features = self.encode_image(image,layers=layer_num,text_features=text_features).squeeze(0)
+        patch_features = self.encode_image(image,layers=layer_num,text_features=text_features,mode=mode).squeeze(0)
 
         # normalized features
         patch_features = patch_features / patch_features.norm(dim=1, keepdim=True)
