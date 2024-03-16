@@ -10,6 +10,7 @@ We present the first language-supervised scene sketch segmentation method. Our a
 <img src="figs/teaser.png" width="800"/>
 
 # News
+- **26.02.2024**: Train code released
 - **26.02.2024**: Paper accepted at CVPR'24 :tada: 
 - **05.12.2023**: Demo code is released.
 
@@ -58,8 +59,32 @@ python demo.py --config-file vpt/configs/prompt/cub.yaml checkpoint_path checkpo
   the threshold value for class-pixel similarity scores to retain.
  
 
-## Training code (to be released soon)
+## Training: 
+- Upload the dataset from here and put it in /DATA directory.
 
+- Run the following for training the model.
+```
+python train.py --config-file vpt/configs/prompt/cub.yaml MODEL.PROMPT.NUM_TOKENS 3 MODEL.PROMPT.LOG "first_run" save_every 5 learning_rate 1e-6 bz 16  WANDB False 
+```
+
+### Hyper-parameters
+- `config-file`:
+  main config setups for experiments and explanation for each of them. 
+- `checkpoint_path`:
+  path for the model checkpoint.
+- `MODEL.PROMPT.NUM_TOKENS`:
+  number of trainable visual tokens to use for CLIP fine-tuning.
+- `MODEL.PROMPT.LOG`:
+  log name.
+- `save_every`:
+  save model weights every # epochs.
+- `learning_rate`:
+  learning rate
+- `bz`:
+  training batch size.
+- `WANDB`:
+  whether to log your training to WandB or not.
+  
 
 # Citation
 If you find this paper useful in your research, please consider citing:
