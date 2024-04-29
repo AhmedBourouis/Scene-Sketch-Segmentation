@@ -1,6 +1,6 @@
 # Open Vocabulary Scene Sketch Semantic Understanding
 
-We present the first language-supervised scene sketch segmentation method. Our approach employs a dual-level network architecture designed to effectively disentangle different object categories within scene sketches, utilizing only brief captions as guidance. 
+We present the first language-supervised scene sketch segmentation method. Our approach employs a dual-level network architecture designed to effectively disentangle different object categories within scene sketches, utilizing only brief captions as guidance.    
 
 [**Open Vocabulary Scene Sketch Semantic Understanding**](https://ahmedbourouis.github.io/Scene_Sketch_Segmentation/), 
 [*Ahmed Bourouis*](https://www.surrey.ac.uk/people/ahmed-bourouis),

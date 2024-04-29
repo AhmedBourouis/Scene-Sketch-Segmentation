@@ -33,7 +33,8 @@ def main(args):
     print("Model loaded successfully")
     
     # set the condidate classes here
-    classes = ['giraffe','zebra','grass','cloud'] 
+    classes = ['giraffe','zebra','grass ','cloud'] 
+    
     
     colors = plt.get_cmap("tab10").colors    
     classes_colors = colors[:len(classes)]
