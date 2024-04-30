@@ -1,4 +1,5 @@
 # Open Vocabulary Scene Sketch Semantic Understanding
+This is the official implementation of the "Open Vocabulary Scene Sketch Semantic Understanding", CVPR 2024, paper.
 
 We present the first language-supervised scene sketch segmentation method. Our approach employs a dual-level network architecture, designed to effectively disentangle different object categories within scene sketches, utilizing only brief captions as guidance.    
 
