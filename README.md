@@ -102,4 +102,4 @@ primaryClass={cs.CV}
 }
 ```
 # Questions
-For any questions please contact [Ahmed Bourouis](bourouis17@gmail.com) and [Yulia Gryaditskaya](yulia.gryaditskaya@gmail.com).
+For any questions please contact Ahmed Bourouis (bourouis17@gmail.com) and Yulia Gryaditskaya (yulia.gryaditskaya@gmail.com).
