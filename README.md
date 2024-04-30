@@ -12,7 +12,7 @@ We present the first language-supervised scene sketch segmentation method. Our a
 </div>
 
 # News
-- **26.02.2024**: Train code released
+- **26.02.2024**: Train code is released
 - **26.02.2024**: Paper accepted at CVPR'24 :tada: 
 - **05.12.2023**: Demo code is released.
 
