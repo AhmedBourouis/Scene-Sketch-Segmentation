@@ -18,7 +18,7 @@ We present the first language-supervised scene sketch segmentation method. Our a
 
 
 # Inference
-- Given a desirable set of categories (or a brief caption) for a given sketch image, we encode these categories with the CLIP text encoder. 
+- Given a desirable set of categories (or a brief caption) for a given sketch image, we encode these categories with the ViT-based text encoder, fine-tuned with our model. 
 - We compute the per-patch cosine similarity between the class embeddings and the scene sketch patch embeddings. The resulting similarity matrix represents the category label probabilities for each patch. 
 - To generate a pixel-level similarity map, we reshape the resulting per-patch similarity maps and then upscale them to the dimensions of the original scene sketch using bi-cubic interpolation.
 
@@ -90,7 +90,7 @@ python train.py --config-file vpt/configs/prompt/cub.yaml MODEL.PROMPT.NUM_TOKEN
   
 
 # Citation
-If you find this paper useful in your research, please consider citing:
+If you build on this code or compare to it, please cite:
 ```
 @misc{bourouis2023open,
 title={Open Vocabulary Semantic Scene Sketch Understanding}, 
@@ -102,4 +102,4 @@ primaryClass={cs.CV}
 }
 ```
 # Questions
-For any questions please contact: [Ahmed Bourouis](bourouis17@gmail.com) and [Yulia Gryaditskaya](yulia.gryaditskaya@gmail.com).
+For any questions please contact [Ahmed Bourouis](bourouis17@gmail.com) and [Yulia Gryaditskaya](yulia.gryaditskaya@gmail.com).
