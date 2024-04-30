@@ -92,13 +92,11 @@ python train.py --config-file vpt/configs/prompt/cub.yaml MODEL.PROMPT.NUM_TOKEN
 # Citation
 If you build on this code or compare to it, please cite:
 ```
-@misc{bourouis2023open,
+@inproceedings{bourouis2024sketch,
 title={Open Vocabulary Semantic Scene Sketch Understanding}, 
 author={Ahmed Bourouis and Judith Ellen Fan and Yulia Gryaditskaya},
-year={2023},
-eprint={2312.12463},
-archivePrefix={arXiv},
-primaryClass={cs.CV}
+booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+year={2024}
 }
 ```
 # Questions
