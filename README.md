@@ -63,7 +63,7 @@ python demo.py --config-file vpt/configs/prompt/cub.yaml checkpoint_path checkpo
  
 
 ## Training: 
-- Upload the dataset from [here](https://cvssp.org/data/fscoco-seg/) and put it in "/DATA" directory.
+- Download the dataset from [here (link to the dataset webpage)](https://cvssp.org/data/fscoco-seg/) and put it in "/DATA" directory.
 
 - Run the following for training the model.
 ```
