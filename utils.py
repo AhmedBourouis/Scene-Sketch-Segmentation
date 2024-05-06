@@ -69,7 +69,7 @@ def get_similarity_map(sm, shape):
     return sm.squeeze(0)
 
 
-def display_segmented_sketch(pixel_similarity_array,binary_sketch,classes,classes_colors,save_path=None):
+def display_segmented_sketch(pixel_similarity_array,binary_sketch,classes,classes_colors,save_path=None,live=False):
     # Find the class index with the highest similarity for each pixel
     class_indices = np.argmax(pixel_similarity_array, axis=0)
     # Create an HSV image placeholder
@@ -96,28 +96,33 @@ def display_segmented_sketch(pixel_similarity_array,binary_sketch,classes,classe
     # Convert the HSV image back to RGB to display and save
     rgb_image = hsv_to_rgb(hsv_image)
 
-    # Calculate centroids and render class names
-    for i, class_name in enumerate(classes):
-        mask = class_indices == i
-        if np.any(mask):
-            y, x = np.nonzero(mask)
-            centroid_x, centroid_y = np.mean(x), np.mean(y)
-            plt.text(centroid_x, centroid_y, class_name, color=classes_colors[i], ha='center', va='center',fontsize=14,   # color=classes_colors[i]
-            bbox=dict(facecolor='lightgrey', edgecolor='none', boxstyle='round,pad=0.2', alpha=0.8))
+    # # Calculate centroids and render class names
+    # for i, class_name in enumerate(classes):
+    #     mask = class_indices == i
+    #     if np.any(mask):
+    #         y, x = np.nonzero(mask)
+    #         centroid_x, centroid_y = np.mean(x), np.mean(y)
+    #         plt.text(centroid_x, centroid_y, class_name, color=classes_colors[i], ha='center', va='center',fontsize=14,   # color=classes_colors[i]
+    #         bbox=dict(facecolor='lightgrey', edgecolor='none', boxstyle='round,pad=0.2', alpha=0.8))
+
 
     # Display the image with class names
     plt.imshow(rgb_image)
     plt.axis('off')
     plt.tight_layout()
     
-    save_dir = "/".join(save_path.split("/")[:-1])
-    if save_dir !='':
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        plt.savefig(save_path, bbox_inches='tight', pad_inches=0)
-        
+    if live:
+        plt.savefig('output.png', bbox_inches='tight', pad_inches=0)
+    
     else:
-        plt.show()
+        save_dir = "/".join(save_path.split("/")[:-1])
+        if save_dir !='':
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+            plt.savefig(save_path, bbox_inches='tight', pad_inches=0)
+            
+        else:
+            plt.show()
 
 
 def sketch_text_pairs(sketch_batch,captions,max_classes=3):
