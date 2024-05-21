@@ -1,4 +1,4 @@
-# Open Vocabulary Scene Sketch Semantic Understanding
+# Open Vocabulary Semantic Scene Sketch Understanding
 This is the official implementation of the "Open Vocabulary Scene Sketch Semantic Understanding", CVPR 2024, paper, by [*Ahmed Bourouis*](https://ahmedbourouis.github.io/ahmed-bourouis/), [*Judith Ellen Fan*](https://profiles.stanford.edu/judith-fan), and [*Yulia Gryaditskaya*](https://yulia.gryaditskaya.com/).
 
 [**Project webpage**](https://ahmedbourouis.github.io/Scene_Sketch_Segmentation/)
