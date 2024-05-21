@@ -10,6 +10,7 @@ We present the first language-supervised scene sketch segmentation method. Our a
 </div>
 
 # News
+- **21.05.2024**: Try out our [demo](https://huggingface.co/spaces/ahmedbrs/scene-sketch-seg)! 
 - **26.02.2024**: Train code is released
 - **26.02.2024**: Paper accepted at CVPR'24 :tada: 
 - **05.12.2023**: Demo code is released.
