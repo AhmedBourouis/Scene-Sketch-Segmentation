@@ -99,3 +99,7 @@ year={2024}
 ```
 # Questions
 For any questions please contact Ahmed Bourouis (bourouis17@gmail.com) and Yulia Gryaditskaya (yulia.gryaditskaya@gmail.com).
+
+## Acknowledgements
+
+Our code is based on [CLIP_Surgery](https://github.com/xmed-lab/CLIP_Surgery) repository. We thank the authors for releasing their code. If you use our model and code, please consider citing this work as well.
